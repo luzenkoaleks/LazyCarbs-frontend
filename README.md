@@ -1,69 +1,69 @@
-# React + TypeScript + Vite
+LazyCarbs Frontend
+!
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Dieses Repository enthält das React Frontend für den LazyCarbs Bolus-Rechner, entwickelt mit Vite und Tailwind CSS. Es bietet die Benutzeroberfläche zur Eingabe von Mahlzeit- und persönlichen Daten und kommuniziert mit dem separaten Java Spring Boot Backend, um Insulin-Bolus-Berechnungen durchzuführen.
 
-Currently, two official plugins are available:
+Inhaltsverzeichnis
+Über das Projekt
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Technologien
 
-## Expanding the ESLint configuration
+Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Nutzung
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Kommunikation mit dem Backend
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+Beitrag
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Lizenz
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Kontakt
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Über das Projekt
+Das LazyCarbs Frontend ist die interaktive Web-Oberfläche für eine Anwendung, die Diabetikern hilft, ihren Insulin-Bolus präziser zu berechnen. Es sendet Benutzerdaten an ein Java Spring Boot Backend, das die komplexe Berechnungslogik enthält, und zeigt die Ergebnisse übersichtlich an.
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Technologien
+React: Eine JavaScript-Bibliothek zum Erstellen von Benutzeroberflächen.
+
+Vite: Ein schneller Build-Tool, der für moderne Webprojekte optimiert ist.
+
+TypeScript: Eine typisierte Obermenge von JavaScript, die die Entwicklung robusterer Anwendungen ermöglicht.
+
+Tailwind CSS: Ein Utility-First-CSS-Framework für schnelles und responsives Styling.
+
+Installation
+Um das Frontend lokal auszuführen, stelle sicher, dass du Node.js und npm (oder Yarn) installiert hast.
+
+Repository klonen:
+
+git clone https://github.com/luzenkoaleks/LazyCarbs-frontend.git
+cd LazyCarbs-frontend
+
+Abhängigkeiten installieren:
+
+npm install # oder yarn install
+
+Nutzung
+Um das Frontend zu nutzen, musst du sicherstellen, dass das zugehörige Java Spring Boot Backend läuft (standardmäßig auf http://localhost:8080).
+
+Frontend starten:
+
+npm run dev # oder yarn dev
+
+Das Frontend wird im Entwicklungsmodus gestartet und ist normalerweise unter http://localhost:5173 erreichbar.
+
+Webanwendung im Browser:
+Öffne deinen Webbrowser und navigiere zu der im Terminal angezeigten Adresse (z.B. http://localhost:5173).
+
+Kommunikation mit dem Backend
+Das Frontend sendet POST-Anfragen an den /api/calculate-Endpunkt des Backends (standardmäßig http://localhost:8080/api/calculate). Stelle sicher, dass das Backend läuft und für Cross-Origin Resource Sharing (CORS) aus dem Frontend-Ursprung (http://localhost:5173) konfiguriert ist.
+
+Beitrag
+Beiträge sind willkommen! Wenn du Ideen für Verbesserungen oder neue Funktionen hast, öffne bitte ein Issue oder erstelle einen Pull Request.
+
+Lizenz
+Dieses Projekt ist unter der MIT-Lizenz lizenziert. Weitere Details findest du in der LICENSE-Datei.
+
+Kontakt
+Alexander Luzenko / luzenkoaleks
