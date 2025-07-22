@@ -7,7 +7,7 @@ export interface CalculationRequest {
   currentHour: number;
   currentMinute: number;
   movementFactor: number;
-  enableDatabaseStorage: boolean; // NEU: Feld für die Datenbank-Speicheroption
+  enableDatabaseStorage: boolean; // Feld für die Datenbank-Speicheroption
 }
 
 // Definiert die Struktur der Daten, die vom Backend empfangen werden (Response)
@@ -35,4 +35,10 @@ export interface CalculationResponse {
   methodExplanation: string;
   statusMessage: string;
   dbStatus: string; // Feld für den Datenbank-Status
+}
+
+// NEU: Definiert die Struktur für einen stündlichen Bolusfaktor
+export interface HourlyBolusFactor {
+  hour: number;
+  bolusFactor: number;
 }
