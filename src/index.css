@@ -1,0 +1,9 @@
+/* Importiere Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: Grundlegende Schriftart für das gesamte Projekt */
+body {
+  font-family: 'Inter', sans-serif;
+}
