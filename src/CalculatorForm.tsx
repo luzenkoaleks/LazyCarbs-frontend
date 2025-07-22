@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { CalculationRequest, CalculationResponse } from './types'; // HINWEIS: 'type' hinzugefügt
+import type { CalculationRequest, CalculationResponse } from './types';
 
 const CalculatorForm: React.FC = () => {
   // Zustand für die Eingabefelder
@@ -10,6 +10,8 @@ const CalculatorForm: React.FC = () => {
   const [currentHour, setCurrentHour] = useState<number | ''>('');
   const [currentMinute, setCurrentMinute] = useState<number | ''>('');
   const [movementFactor, setMovementFactor] = useState<number | ''>('');
+  // NEU: Zustand für das Kontrollkästchen zur Datenbank-Speicherung
+  const [enableDatabaseStorage, setEnableDatabaseStorage] = useState<boolean>(true);
 
   // Zustand für die Berechnungsergebnisse
   const [result, setResult] = useState<CalculationResponse | null>(null);
@@ -33,12 +35,17 @@ const CalculatorForm: React.FC = () => {
       currentHour: Number(currentHour),
       currentMinute: Number(currentMinute),
       movementFactor: Number(movementFactor),
+      enableDatabaseStorage: enableDatabaseStorage, // NEU: Wert des Kontrollkästchens hinzufügen
     };
 
     // Einfache Validierung, ob alle Felder ausgefüllt sind und gültige Zahlen sind
-    // HINWEIS: Prüfung auf isNaN ist ausreichend, da Number('') zu 0 wird und nicht zu NaN
     for (const key in requestBody) {
-      if (isNaN(requestBody[key as keyof CalculationRequest])) { // Korrigierte Validierung
+      // Überspringe die Prüfung für 'enableDatabaseStorage', da es ein Boolean ist
+      if (key === 'enableDatabaseStorage') continue;
+
+      // Für alle anderen (numerischen) Felder prüfen, ob es sich um eine gültige Zahl handelt
+      const value = requestBody[key as keyof CalculationRequest];
+      if (typeof value === 'number' && isNaN(value)) { // Korrigierte Validierung
         setError(`Bitte füllen Sie alle Felder korrekt aus. Fehler bei: ${key}`);
         setLoading(false);
         return;
@@ -57,7 +64,6 @@ const CalculatorForm: React.FC = () => {
       });
 
       if (!response.ok) {
-        // Wenn die Antwort nicht OK ist (z.B. 4xx oder 5xx Statuscode)
         const errorData = await response.json();
         throw new Error(errorData.statusMessage || 'Fehler bei der Berechnung');
       }
@@ -85,6 +91,20 @@ const CalculatorForm: React.FC = () => {
         <InputField label="Bewegungsfaktor" type="number" value={movementFactor} onChange={setMovementFactor} step="0.01" />
       </div>
 
+      {/* NEU: Checkbox für Datenbank-Speicherung */}
+      <div className="flex items-center mt-4">
+        <input
+          id="enableDatabaseStorage"
+          type="checkbox"
+          checked={enableDatabaseStorage}
+          onChange={(e) => setEnableDatabaseStorage(e.target.checked)}
+          className="form-checkbox h-5 w-5 text-blue-600 rounded-md border-gray-300 focus:ring-blue-500"
+        />
+        <label htmlFor="enableDatabaseStorage" className="ml-2 text-gray-700 text-base font-medium">
+          Berechnung in Datenbank speichern
+        </label>
+      </div>
+
       <button
         type="submit"
         className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-blue-700 transition duration-300 shadow-md"
@@ -106,7 +126,7 @@ const CalculatorForm: React.FC = () => {
         <div className="bg-gray-50 p-6 rounded-lg shadow-inner mt-8 space-y-4">
           <h2 className="text-2xl font-bold text-gray-700 border-b pb-2 mb-4">Berechnungsergebnisse</h2>
           <ResultItem label="Status" value={result.statusMessage} />
-          <ResultItem label="Datenbank Status" value={result.dbStatus} />
+          <ResultItem label="Datenbank Status" value={result.dbStatus} /> {/* Zeigt den DB-Status an */}
           <ResultItem label="Ausgewählte Methode" value={result.selectedMethodName} />
           <ResultItem label="Begründung der Methode" value={result.methodExplanation} />
           <ResultItem label="Berechneter Bolusfaktor (Uhrzeit)" value={result.usualBolusFactor.toFixed(4)} />
