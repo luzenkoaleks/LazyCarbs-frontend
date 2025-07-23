@@ -5,9 +5,8 @@ const BolusFactorEditor: React.FC = () => {
   const [factors, setFactors] = useState<HourlyBolusFactor[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [saveStatus, setSaveStatus] = useState<string | null>(null); // Für Erfolgs-/Fehlermeldungen beim Speichern
+  const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
-  // Effekt zum Laden der Bolusfaktoren beim Komponenten-Mount
   useEffect(() => {
     fetchFactors();
   }, []);
@@ -21,7 +20,6 @@ const BolusFactorEditor: React.FC = () => {
         throw new Error('Fehler beim Laden der Bolusfaktoren.');
       }
       const data: HourlyBolusFactor[] = await response.json();
-      // Sortiere die Faktoren nach Stunde, um sicherzustellen, dass sie in der richtigen Reihenfolge sind
       data.sort((a, b) => a.hour - b.hour);
       setFactors(data);
     } catch (err: any) {
@@ -42,7 +40,7 @@ const BolusFactorEditor: React.FC = () => {
   };
 
   const handleSaveFactor = async (hour: number) => {
-    setSaveStatus(null); // Status zurücksetzen
+    setSaveStatus(null);
     const factorToSave = factors.find(f => f.hour === hour);
     if (!factorToSave) {
       setSaveStatus(`Fehler: Faktor für Stunde ${hour} nicht gefunden.`);
@@ -64,13 +62,11 @@ const BolusFactorEditor: React.FC = () => {
       });
 
       if (!response.ok) {
-        const errorText = await response.text(); // Backend gibt String zurück
+        const errorText = await response.text();
         throw new Error(`Fehler beim Speichern: ${errorText || response.statusText}`);
       }
 
       setSaveStatus(`Bolusfaktor für Stunde ${hour} erfolgreich gespeichert!`);
-      // Optional: Faktoren nach erfolgreichem Speichern neu laden, um Konsistenz zu gewährleisten
-      // fetchFactors();
     } catch (err: any) {
       setSaveStatus(err.message || `Fehler beim Speichern des Faktors für Stunde ${hour}.`);
       console.error('Save error:', err);
