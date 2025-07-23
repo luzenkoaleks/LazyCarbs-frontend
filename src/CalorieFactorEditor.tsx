@@ -2,12 +2,21 @@
 import React, { useState, useEffect } from 'react';
 import type { CalorieFactors } from './types';
 
-const CalorieFactorEditor: React.FC = () => {
+// Props für apiKey, isApiKeyValid, clearApiKey und setShowApiKeyPrompt hinzugefügt
+interface CalorieFactorEditorProps {
+  apiKey: string;
+  isApiKeyValid: boolean; // NEU: isApiKeyValid Prop
+  clearApiKey: () => void; // Callback zum Löschen des API-Keys bei Fehlern
+  setShowApiKeyPrompt: (show: boolean) => void; // Callback zum Anzeigen/Ausblenden des API-Key-Prompts
+}
+
+const CalorieFactorEditor: React.FC<CalorieFactorEditorProps> = ({ apiKey, isApiKeyValid, clearApiKey, setShowApiKeyPrompt }) => {
   const [factors, setFactors] = useState<CalorieFactors>({ usualBeCalories: 0, insulinTypeCalorieCovering: 0 });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [saveStatus, setSaveStatus] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<string | null>(null); // Für Erfolgs-/Fehlermeldungen beim Speichern
 
+  // Effekt zum Laden der Kalorienfaktoren beim Komponenten-Mount
   useEffect(() => {
     fetchCalorieFactors();
   }, []);
@@ -45,7 +54,14 @@ const CalorieFactorEditor: React.FC = () => {
   };
 
   const handleSave = async () => {
-    setSaveStatus(null);
+    setSaveStatus(null); // Status zurücksetzen
+
+    // NEU: Prüfe, ob ein API-Key gültig ist, bevor der Speicherversuch unternommen wird
+    if (!isApiKeyValid) {
+      setSaveStatus("Für das Speichern von Faktoren ist ein gültiger API-Key erforderlich. Bitte gib ihn ein.");
+      setShowApiKeyPrompt(true); // Zeige den API-Key-Prompt an
+      return;
+    }
 
     if (isNaN(factors.usualBeCalories) || factors.usualBeCalories <= 0 ||
         isNaN(factors.insulinTypeCalorieCovering) || factors.insulinTypeCalorieCovering <= 0) {
@@ -58,16 +74,26 @@ const CalorieFactorEditor: React.FC = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'X-API-Key': apiKey, // API-Key hier hinzufügen
         },
         body: JSON.stringify(factors),
       });
 
+      // NEU: Überprüfung auf 401 Unauthorized Status
+      if (response.status === 401) {
+        clearApiKey(); // API-Key im App-State löschen und Prompt anzeigen
+        setSaveStatus("Speichern fehlgeschlagen: Ungültiger API-Key. Bitte gib ihn erneut ein.");
+        return; // Verarbeitung hier beenden
+      }
+
       if (!response.ok) {
-        const errorText = await response.text();
+        const errorText = await response.text(); // Backend gibt String zurück
         throw new Error(`Fehler beim Speichern: ${errorText || response.statusText}`);
       }
 
       setSaveStatus("Kalorienfaktoren erfolgreich gespeichert!");
+      // Optional: Faktoren nach erfolgreichem Speichern neu laden, um Konsistenz zu gewährleisten
+      // fetchCalorieFactors();
     } catch (err: any) {
       setSaveStatus(err.message || "Fehler beim Speichern der Kalorienfaktoren.");
       console.error('Save calorie factors error:', err);
@@ -124,7 +150,9 @@ const CalorieFactorEditor: React.FC = () => {
 
       <button
         onClick={handleSave}
-        className="w-full bg-green-600 text-white py-3 rounded-md font-semibold text-lg hover:bg-green-700 transition duration-300 shadow-md mt-6"
+        // Button ist nur aktiv, wenn API-Key gültig ist
+        disabled={!isApiKeyValid}
+        className="w-full bg-green-600 text-white py-3 rounded-md font-semibold text-lg hover:bg-green-700 transition duration-300 shadow-md mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Kalorien-Faktoren speichern
       </button>

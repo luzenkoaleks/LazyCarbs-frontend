@@ -2,7 +2,15 @@
 import { useState, useEffect } from 'react';
 import type { CalculationRequest, CalculationResponse, CalorieFactors } from './types';
 
-const CalculatorForm: React.FC = () => {
+// Props für apiKey, isApiKeyValid, clearApiKey und setShowApiKeyPrompt hinzugefügt
+interface CalculatorFormProps {
+  apiKey: string;
+  isApiKeyValid: boolean;
+  clearApiKey: () => void; // Callback zum Löschen des API-Keys bei Fehlern
+  setShowApiKeyPrompt: (show: boolean) => void; // Callback zum Anzeigen/Ausblenden des API-Key-Prompts
+}
+
+const CalculatorForm: React.FC<CalculatorFormProps> = ({ apiKey, isApiKeyValid, clearApiKey, setShowApiKeyPrompt }) => {
   // Zustand für die Eingabefelder
   const [mealCarbs, setMealCarbs] = useState<number | ''>('');
   const [mealCalories, setMealCalories] = useState<number | ''>('');
@@ -11,7 +19,8 @@ const CalculatorForm: React.FC = () => {
   const [currentHour, setCurrentHour] = useState<number | ''>('');
   const [currentMinute, setCurrentMinute] = useState<number | ''>('');
   const [movementFactor, setMovementFactor] = useState<number | ''>('');
-  const [enableDatabaseStorage, setEnableDatabaseStorage] = useState<boolean>(true);
+  // NEU: Standardmäßig auf false gesetzt, um Berechnungen ohne DB zu erlauben
+  const [enableDatabaseStorage, setEnableDatabaseStorage] = useState<boolean>(false);
 
   // Zustand für die Berechnungsergebnisse
   const [result, setResult] = useState<CalculationResponse | null>(null);
@@ -30,14 +39,25 @@ const CalculatorForm: React.FC = () => {
       setLoadingCalorieFactors(true);
       setCalorieFactorsError(null);
       try {
+        // GET-Anfragen für Faktoren senden KEINEN API-Key mit, da diese Endpunkte ungeschützt sein sollten.
         const response = await fetch('http://localhost:8080/api/calorie-factors');
         if (!response.ok) {
-          throw new Error('Fehler beim Laden der Kalorienfaktoren.');
+          if (response.status === 404) {
+            // Wenn 404, bedeutet das, dass keine Faktoren in der DB sind,
+            // was bei der ersten Initialisierung passieren kann.
+            // Wir setzen dann die Standardwerte aus dem Frontend.
+            setUsualBeCalories(105.0);
+            setInsulinTypeCalorieCovering(200.0);
+            console.warn("Kalorienfaktoren nicht in DB gefunden, Standardwerte geladen.");
+          } else {
+            throw new Error('Fehler beim Laden der Kalorienfaktoren: ' + response.statusText);
+          }
+        } else {
+          const data: CalorieFactors = await response.json();
+          setLoadedCalorieFactors(data);
+          setUsualBeCalories(data.usualBeCalories);
+          setInsulinTypeCalorieCovering(data.insulinTypeCalorieCovering);
         }
-        const data: CalorieFactors = await response.json();
-        setLoadedCalorieFactors(data);
-        setUsualBeCalories(data.usualBeCalories);
-        setInsulinTypeCalorieCovering(data.insulinTypeCalorieCovering);
       } catch (err: any) {
         setCalorieFactorsError(err.message || 'Ein Fehler ist beim Laden der Kalorienfaktoren aufgetreten.');
         console.error('Fetch calorie factors error:', err);
@@ -83,14 +103,37 @@ const CalculatorForm: React.FC = () => {
       return;
     }
 
+    // NEU: Wenn Datenbank-Speicherung aktiviert ist, aber kein gültiger API-Key vorhanden ist,
+    // zeige den API-Key-Prompt an und breche die Speicherung ab.
+    if (enableDatabaseStorage && !isApiKeyValid) {
+      setError("Für die Speicherung in der Datenbank ist ein gültiger API-Key erforderlich. Bitte gib ihn ein.");
+      setShowApiKeyPrompt(true); // Zeige den API-Key-Prompt an
+      setLoading(false);
+      return;
+    }
+
+    // Header für API-Key hinzufügen, WENN Speicherung aktiviert ist UND Key vorhanden
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    if (enableDatabaseStorage && isApiKeyValid && apiKey) { // Prüfe isApiKeyValid hier erneut
+      headers['X-API-Key'] = apiKey;
+    }
+
     try {
       const response = await fetch('http://localhost:8080/api/calculate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: JSON.stringify(requestBody),
       });
+
+      // NEU: Überprüfung auf 401 Unauthorized Status
+      if (response.status === 401) {
+        clearApiKey(); // API-Key im App-State löschen und Prompt anzeigen
+        setError("Speicherung fehlgeschlagen: Ungültiger API-Key. Bitte gib ihn erneut ein.");
+        setLoading(false);
+        return; // Verarbeitung hier beenden
+      }
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -141,7 +184,9 @@ const CalculatorForm: React.FC = () => {
           type="checkbox"
           checked={enableDatabaseStorage}
           onChange={(e) => setEnableDatabaseStorage(e.target.checked)}
-          className="form-checkbox h-5 w-5 text-green-500 rounded-sm border-gray-600 focus:ring-green-400"
+          // Checkbox deaktiviert, wenn API-Key nicht validiert
+          disabled={!isApiKeyValid} // Jetzt korrekt deaktiviert, wenn isApiKeyValid false ist
+          className="form-checkbox h-5 w-5 text-green-500 rounded-sm border-gray-600 focus:ring-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <label htmlFor="enableDatabaseStorage" className="ml-2 text-white text-base font-medium">
           Berechnung in Datenbank speichern

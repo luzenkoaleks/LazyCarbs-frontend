@@ -1,8 +1,15 @@
-// START: src/BolusFactorEditor.tsx
 import React, { useState, useEffect } from 'react';
 import type { HourlyBolusFactor } from './types';
 
-const BolusFactorEditor: React.FC = () => {
+// Props für apiKey, isApiKeyValid, clearApiKey und setShowApiKeyPrompt hinzugefügt
+interface BolusFactorEditorProps {
+  apiKey: string;
+  isApiKeyValid: boolean; // NEU: isApiKeyValid Prop
+  clearApiKey: () => void; // Callback zum Löschen des API-Keys bei Fehlern
+  setShowApiKeyPrompt: (show: boolean) => void; // Callback zum Anzeigen/Ausblenden des API-Key-Prompts
+}
+
+const BolusFactorEditor: React.FC<BolusFactorEditorProps> = ({ apiKey, isApiKeyValid, clearApiKey, setShowApiKeyPrompt }) => {
   // `factors` speichert die ursprünglich geladenen Werte
   const [factors, setFactors] = useState<HourlyBolusFactor[]>([]);
   // `editedFactors` speichert nur die vom Benutzer geänderten Werte in einer Map (Stunde -> neuer Wert)
@@ -26,10 +33,9 @@ const BolusFactorEditor: React.FC = () => {
         throw new Error('Fehler beim Laden der Bolusfaktoren.');
       }
       const data: HourlyBolusFactor[] = await response.json();
-      data.sort((a, b) => a.hour - b.hour); // Stelle sicher, dass sie nach Stunde sortiert sind
+      data.sort((a, b) => a.hour - b.hour); // Stelle sicher, dass die Faktoren nach Stunde sortiert sind
       setFactors(data);
-      // editedFactors wird hier nicht initialisiert, da es nur für *geänderte* Werte ist.
-      // Wenn ein Feld leer ist, bedeutet das, dass es nicht bearbeitet wurde und der aktuelle Wert gilt.
+      // editedFactors wird hier nicht initialisiert, da es nur für Änderungen verwendet wird
     } catch (err: any) {
       setError(err.message || 'Ein Fehler ist beim Laden der Faktoren aufgetreten.');
       console.error('Fetch error:', err);
@@ -42,7 +48,7 @@ const BolusFactorEditor: React.FC = () => {
     const parsedValue = parseFloat(newValue);
     setEditedFactors(prev => {
       const newMap = new Map(prev);
-      if (newValue === '') { // Wenn das Feld geleert wird, entferne es aus der Map der bearbeiteten Werte
+      if (newValue === '') { // Wenn das Feld leer ist, entfernen wir es aus der Map der bearbeiteten Werte
         newMap.delete(hour);
       } else {
         newMap.set(hour, isNaN(parsedValue) ? 0 : parsedValue);
@@ -53,16 +59,17 @@ const BolusFactorEditor: React.FC = () => {
 
   const handleSaveFactor = async (hour: number) => {
     setSaveStatus(null);
-    const originalFactor = factors.find(f => f.hour === hour);
-    if (!originalFactor) {
-      setSaveStatus(`Fehler: Originalfaktor für Stunde ${hour} nicht gefunden.`);
+    
+    // NEU: Prüfe, ob ein API-Key gültig ist, bevor der Speicherversuch unternommen wird
+    if (!isApiKeyValid) {
+      setSaveStatus("Für das Speichern von Faktoren ist ein gültiger API-Key erforderlich. Bitte gib ihn ein.");
+      setShowApiKeyPrompt(true); // Zeige den API-Key-Prompt an
       return;
     }
 
-    // Hole den Wert, der gespeichert werden soll (aus editedFactors, falls vorhanden, sonst den Originalwert)
-    const valueToSave = editedFactors.has(hour) ? editedFactors.get(hour)! : originalFactor.bolusFactor;
+    const valueToSave = editedFactors.get(hour); // Hol den Wert aus den bearbeiteten Faktoren
 
-    if (isNaN(valueToSave) || valueToSave <= 0) {
+    if (valueToSave === undefined || isNaN(valueToSave) || valueToSave <= 0) {
       setSaveStatus(`Fehler: Ungültiger Bolusfaktor für Stunde ${hour}. Muss eine positive Zahl sein.`);
       return;
     }
@@ -72,9 +79,17 @@ const BolusFactorEditor: React.FC = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'X-API-Key': apiKey, // API-Key hier hinzufügen
         },
         body: JSON.stringify({ hour: hour, bolusFactor: valueToSave }),
       });
+
+      // NEU: Überprüfung auf 401 Unauthorized Status
+      if (response.status === 401) {
+        clearApiKey(); // API-Key im App-State löschen und Prompt anzeigen
+        setSaveStatus("Speichern fehlgeschlagen: Ungültiger API-Key. Bitte gib ihn erneut ein.");
+        return; // Verarbeitung hier beenden
+      }
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -141,8 +156,8 @@ const BolusFactorEditor: React.FC = () => {
             />
             <button
               onClick={() => handleSaveFactor(factor.hour)}
-              // Button ist nur aktiv, wenn ein Wert im Inputfeld steht und dieser eine gültige Zahl ist
-              disabled={!editedFactors.has(factor.hour) || isNaN(editedFactors.get(factor.hour)!)}
+              // Button ist nur aktiv, wenn ein Wert im Inputfeld steht und gültig ist UND API-Key gültig ist
+              disabled={!isApiKeyValid || !editedFactors.has(factor.hour) || isNaN(editedFactors.get(factor.hour)!)}
               className="ml-auto px-3 py-1 bg-green-600 text-white rounded-md font-semibold text-sm hover:bg-green-700 transition duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Speichern
@@ -158,4 +173,3 @@ const BolusFactorEditor: React.FC = () => {
 };
 
 export default BolusFactorEditor;
-// END: src/BolusFactorEditor.tsx
