@@ -1,3 +1,4 @@
+// START: src/CalorieFactorEditor.tsx
 import React, { useState, useEffect } from 'react';
 import type { CalorieFactors } from './types';
 
@@ -74,26 +75,26 @@ const CalorieFactorEditor: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="text-center text-gray-600">Lade Kalorienfaktoren...</div>;
+    return <div className="text-center text-white font-mono">Lade Kalorienfaktoren...</div>;
   }
 
   if (error) {
-    return <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center">{error}</div>;
+    return <div className="bg-red-900 border border-red-700 text-red-300 px-4 py-3 rounded-lg text-center font-mono">{error}</div>;
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-700 text-center mb-6">Kalorien-Faktoren anpassen</h2>
+    <div className="space-y-6 font-mono">
+      <h2 className="text-2xl font-bold text-white text-center mb-6">Kalorien-Faktoren anpassen</h2>
 
       {saveStatus && (
-        <div className={`px-4 py-3 rounded-lg text-center ${saveStatus.includes('Fehler') ? 'bg-red-100 text-red-700 border border-red-400' : 'bg-green-100 text-green-700 border border-green-400'}`}>
+        <div className={`px-4 py-3 rounded-lg text-center ${saveStatus.includes('Fehler') ? 'bg-red-900 text-red-300 border border-red-700' : 'bg-green-900 text-green-300 border border-green-700'}`}>
           {saveStatus}
         </div>
       )}
 
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
-          <label htmlFor="usualBeCalories" className="text-gray-700 font-medium sm:w-1/2 mb-2 sm:mb-0">
+        <div className="flex flex-col sm:flex-row items-center justify-between bg-gray-900 p-4 rounded-md border border-green-700/50">
+          <label htmlFor="usualBeCalories" className="text-white font-medium sm:w-1/2 mb-2 sm:mb-0 text-sm">
             Übliche Kalorien pro BE (kcal/BE):
           </label>
           <input
@@ -102,12 +103,12 @@ const CalorieFactorEditor: React.FC = () => {
             step="0.01"
             value={factors.usualBeCalories}
             onChange={(e) => handleFactorChange('usualBeCalories', e.target.value)}
-            className="shadow-sm appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-1/2"
+            className="bg-gray-700 text-white border border-green-600 rounded-md py-2 px-3 text-sm leading-tight focus:outline-none focus:ring-1 focus:ring-green-400 focus:border-green-400 w-full sm:w-1/2"
           />
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
-          <label htmlFor="insulinTypeCalorieCovering" className="text-gray-700 font-medium sm:w-1/2 mb-2 sm:mb-0">
+        <div className="flex flex-col sm:flex-row items-center justify-between bg-gray-900 p-4 rounded-md border border-green-700/50">
+          <label htmlFor="insulinTypeCalorieCovering" className="text-white font-medium sm:w-1/2 mb-2 sm:mb-0 text-sm">
             Insulin-Typ Kalorienabdeckung (150/200):
           </label>
           <input
@@ -116,18 +117,18 @@ const CalorieFactorEditor: React.FC = () => {
             step="0.01"
             value={factors.insulinTypeCalorieCovering}
             onChange={(e) => handleFactorChange('insulinTypeCalorieCovering', e.target.value)}
-            className="shadow-sm appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-1/2"
+            className="bg-gray-700 text-white border border-green-600 rounded-md py-2 px-3 text-sm leading-tight focus:outline-none focus:ring-1 focus:ring-green-400 focus:border-green-400 w-full sm:w-1/2"
           />
         </div>
       </div>
 
       <button
         onClick={handleSave}
-        className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-blue-700 transition duration-300 shadow-md mt-6"
+        className="w-full bg-green-600 text-white py-3 rounded-md font-semibold text-lg hover:bg-green-700 transition duration-300 shadow-md mt-6"
       >
         Kalorien-Faktoren speichern
       </button>
-      <p className="text-sm text-gray-500 mt-4 text-center">
+      <p className="text-xs text-white mt-4 text-center">
         Hinweis: Diese Faktoren werden global für alle Berechnungen verwendet.
       </p>
     </div>
@@ -135,3 +136,4 @@ const CalorieFactorEditor: React.FC = () => {
 };
 
 export default CalorieFactorEditor;
+// END: src/CalorieFactorEditor.tsx

@@ -1,3 +1,4 @@
+// START: src/CalculatorForm.tsx
 import { useState, useEffect } from 'react';
 import type { CalculationRequest, CalculationResponse, CalorieFactors } from './types';
 
@@ -107,60 +108,66 @@ const CalculatorForm: React.FC = () => {
   };
 
   if (loadingCalorieFactors) {
-    return <div className="text-center text-gray-600">Lade Standard-Kalorienfaktoren...</div>;
+    return <div className="text-center text-white font-mono">Lade Standard-Kalorienfaktoren...</div>;
   }
 
   if (calorieFactorsError) {
-    return <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center">{calorieFactorsError}</div>;
+    return <div className="bg-red-900 border border-red-700 text-red-300 px-4 py-3 rounded-lg text-center font-mono">{calorieFactorsError}</div>;
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 pt-8 bg-red-300">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    // Formular-Hintergrund dunkelgrau
+    <form onSubmit={handleSubmit} className="space-y-4 pt-4 bg-gray-900 p-6 rounded-lg border border-green-700/50">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Eingabefelder */}
         <InputField label="Kohlenhydrate der Mahlzeit (g)" type="number" value={mealCarbs} onChange={setMealCarbs} />
         <InputField label="Kalorien der Mahlzeit (kcal)" type="number" value={mealCalories} onChange={setMealCalories} />
         
-        <div className="md:col-span-2 mt-6 space-y-2">
-          <h3 className="block text-gray-700 text-lg font-bold">Essen um:</h3>
+        {/* "Essen um:" Überschrift und Stunden-/Minutenfelder */}
+        <div className="md:col-span-2 mt-4 space-y-2">
+          <h3 className="block text-white text-lg font-bold">Essen um:</h3>
           <InputField label="Stunde (0-23)" type="number" value={currentHour} onChange={setCurrentHour} min={0} max={23} />
           <InputField label="Minute (0-59)" type="number" value={currentMinute} onChange={setCurrentMinute} min={0} max={59} />
         </div>
         
-        <div className="md:col-span-2 h-6"></div>
+        <div className="md:col-span-2 h-2"></div> {/* Kompakterer Abstand */}
         <InputField label="Bewegungsfaktor" type="number" value={movementFactor} onChange={setMovementFactor} step="0.01" />
       </div>
 
-      <div className="flex items-center my-6">
+      {/* Checkbox für Datenbank-Speicherung */}
+      <div className="flex items-center my-4">
         <input
           id="enableDatabaseStorage"
           type="checkbox"
           checked={enableDatabaseStorage}
           onChange={(e) => setEnableDatabaseStorage(e.target.checked)}
-          className="form-checkbox h-5 w-5 text-blue-600 rounded-md border-gray-300 focus:ring-blue-500"
+          className="form-checkbox h-5 w-5 text-green-500 rounded-sm border-gray-600 focus:ring-green-400"
         />
-        <label htmlFor="enableDatabaseStorage" className="ml-2 text-gray-700 text-base font-medium">
+        <label htmlFor="enableDatabaseStorage" className="ml-2 text-white text-base font-medium">
           Berechnung in Datenbank speichern
         </label>
       </div>
 
       <button
         type="submit"
-        className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-blue-700 transition duration-300 shadow-md"
+        className="w-full bg-green-600 text-white py-3 rounded-md font-semibold text-lg hover:bg-green-700 transition duration-300 shadow-md"
         disabled={loading}
       >
         {loading ? 'Berechne...' : 'Bolus berechnen'}
       </button>
 
+      {/* Fehlermeldung anzeigen */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative" role="alert">
+        <div className="bg-red-900 border border-red-700 text-red-300 px-4 py-3 rounded-lg relative font-mono" role="alert">
           <strong className="font-bold">Fehler:</strong>
           <span className="block sm:inline"> {error}</span>
         </div>
       )}
 
+      {/* Ergebnisse anzeigen */}
       {result && (
-        <div className="bg-gray-50 p-6 rounded-lg shadow-inner mt-8 space-y-4">
-          <h2 className="text-2xl font-bold text-gray-700 border-b pb-2 mb-4">Berechnungsergebnisse</h2>
+        <div className="bg-gray-900 p-6 rounded-lg shadow-inner mt-8 space-y-3 border border-green-700">
+          <h2 className="text-2xl font-bold text-white border-b border-green-700 pb-2 mb-4">Berechnungsergebnisse</h2>
           <ResultItem label="Status" value={result.statusMessage} />
           <ResultItem label="Datenbank Status" value={result.dbStatus} />
           <ResultItem label="Ausgewählte Methode" value={result.selectedMethodName} />
@@ -183,6 +190,7 @@ const CalculatorForm: React.FC = () => {
   );
 };
 
+// Hilfskomponente für Eingabefelder
 interface InputFieldProps {
   label: string;
   type: string;
@@ -195,12 +203,13 @@ interface InputFieldProps {
 
 const InputField: React.FC<InputFieldProps> = ({ label, type, value, onChange, min, max, step }) => (
   <div>
-    <label className="block text-gray-700 text-sm font-bold mb-2">{label}</label>
+    <label className="block text-white text-sm font-bold mb-1">{label}</label>
     <input
       type={type}
       value={value}
       onChange={(e) => onChange(e.target.value === '' ? '' : Number(e.target.value))}
-      className="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      // Konsolen-Look für Input-Felder
+      className="bg-gray-700 text-white border border-green-600 rounded-md w-full py-2 px-3 leading-tight focus:outline-none focus:ring-1 focus:ring-green-400 focus:border-green-400 font-mono"
       min={min}
       max={max}
       step={step}
@@ -209,15 +218,17 @@ const InputField: React.FC<InputFieldProps> = ({ label, type, value, onChange, m
   </div>
 );
 
+// Hilfskomponente für Ergebniszeilen
 interface ResultItemProps {
   label: string;
   value: string;
 }
 
 const ResultItem: React.FC<ResultItemProps> = ({ label, value }) => (
-  <p className="text-gray-800">
-    <span className="font-semibold">{label}:</span> {value}
+  <p className="text-white text-sm">
+    <span className="font-semibold text-white">{label}:</span> {value}
   </p>
 );
 
 export default CalculatorForm;
+// END: src/CalculatorForm.tsx

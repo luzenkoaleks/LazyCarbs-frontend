@@ -1,9 +1,11 @@
+/* START: src/index.css */
 /* Importiere Tailwind CSS */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Optional: Grundlegende Schriftart für das gesamte Projekt */
+/* Setze eine Monospace-Schriftart für das gesamte Projekt, um den Konsolen-Look zu verstärken */
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
+/* END: src/index.css */
