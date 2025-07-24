@@ -1,4 +1,4 @@
-// START: src/CalorieFactorEditor.tsx
+import { getApiUrl } from './api';const response = await fetch(getApiUrl('/api/calorie-factors'));
 import React, { useState, useEffect } from 'react';
 import type { CalorieFactors } from './types';
 
@@ -25,7 +25,7 @@ const CalorieFactorEditor: React.FC<CalorieFactorEditorProps> = ({ apiKey, isApi
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8080/api/calorie-factors');
+      const response = await fetch(getApiUrl('/api/calorie-factors'));
       if (!response.ok) {
         if (response.status === 404) {
           setFactors({ usualBeCalories: 105.0, insulinTypeCalorieCovering: 200.0 });
@@ -70,14 +70,14 @@ const CalorieFactorEditor: React.FC<CalorieFactorEditorProps> = ({ apiKey, isApi
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/calorie-factors', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': apiKey, // API-Key hier hinzufügen
-        },
-        body: JSON.stringify(factors),
-      });
+  const response = await fetch(getApiUrl('/api/calorie-factors'), {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': apiKey,
+    },
+    body: JSON.stringify(factors),
+  });
 
       // NEU: Überprüfung auf 401 Unauthorized Status
       if (response.status === 401) {
