@@ -1,12 +1,11 @@
-import { getApiUrl } from './api.js'
 // API Base URL Konfiguration
-export const response = await fetch(getApiUrl('/api/calorie-factors'));
+export const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 // Helper-Funktion für API-Calls
-export const apiCall = async (endpoint, options = {}) => {
+export const apiCall = async (endpoint: string, options: RequestInit = {}): Promise<Response> => {
   const url = `${API_BASE_URL}${endpoint}`;
   return fetch(url, options);
 };
 
 // Oder als einzelne Funktion
-export const getApiUrl = (endpoint) => `${API_BASE_URL}${endpoint}`;
+export const getApiUrl = (endpoint: string): string => `${API_BASE_URL}${endpoint}`;
