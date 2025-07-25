@@ -1,4 +1,4 @@
-// START: src/CalculatorForm.tsx
+import { getApiUrl } from './api';
 import { useState, useEffect } from 'react';
 import type { CalculationRequest, CalculationResponse, CalorieFactors } from './types';
 
@@ -40,7 +40,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({ apiKey, isApiKeyValid, 
       setCalorieFactorsError(null);
       try {
         // GET-Anfragen für Faktoren senden KEINEN API-Key mit, da diese Endpunkte ungeschützt sein sollten.
-        const response = await fetch('http://localhost:8080/api/calorie-factors');
+        const response = await fetch(getApiUrl('/api/calorie-factors'));
         if (!response.ok) {
           if (response.status === 404) {
             // Wenn 404, bedeutet das, dass keine Faktoren in der DB sind,
@@ -121,7 +121,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({ apiKey, isApiKeyValid, 
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/calculate', {
+      const response = await fetch(getApiUrl('/api/calculate'), {
         method: 'POST',
         headers: headers,
         body: JSON.stringify(requestBody),
@@ -276,4 +276,3 @@ const ResultItem: React.FC<ResultItemProps> = ({ label, value }) => (
 );
 
 export default CalculatorForm;
-// END: src/CalculatorForm.tsx
