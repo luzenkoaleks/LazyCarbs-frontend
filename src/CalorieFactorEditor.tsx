@@ -1,4 +1,4 @@
-import { getApiUrl } from './api';const response = await fetch(getApiUrl('/api/calorie-factors'));
+import { getApiUrl } from './api';
 import React, { useState, useEffect } from 'react';
 import type { CalorieFactors } from './types';
 
@@ -70,14 +70,14 @@ const CalorieFactorEditor: React.FC<CalorieFactorEditorProps> = ({ apiKey, isApi
     }
 
     try {
-  const response = await fetch(getApiUrl('/api/calorie-factors'), {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-API-Key': apiKey,
-    },
-    body: JSON.stringify(factors),
-  });
+      const response = await fetch(getApiUrl('/api/calorie-factors'), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': apiKey,
+        },
+        body: JSON.stringify(factors),
+      });
 
       // NEU: Überprüfung auf 401 Unauthorized Status
       if (response.status === 401) {
@@ -164,4 +164,3 @@ const CalorieFactorEditor: React.FC<CalorieFactorEditorProps> = ({ apiKey, isApi
 };
 
 export default CalorieFactorEditor;
-// END: src/CalorieFactorEditor.tsx
