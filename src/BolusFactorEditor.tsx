@@ -1,5 +1,7 @@
+// START: src/BolusFactorEditor.tsx
 import React, { useState, useEffect } from 'react';
 import type { HourlyBolusFactor } from './types';
+import { getApiUrl } from './api'; // NEU: Importiere getApiUrl
 
 // Props für apiKey, isApiKeyValid, clearApiKey und setShowApiKeyPrompt hinzugefügt
 interface BolusFactorEditorProps {
@@ -27,8 +29,10 @@ const BolusFactorEditor: React.FC<BolusFactorEditorProps> = ({ apiKey, isApiKeyV
   const fetchFactors = async () => {
     setLoading(true);
     setError(null);
+    const url = getApiUrl('/api/bolus-factors');
+    console.log("Fetching from URL:", url); // Debug-Log hinzugefügt
     try {
-      const response = await fetch('http://localhost:8080/api/bolus-factors');
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Fehler beim Laden der Bolusfaktoren.');
       }
@@ -75,7 +79,8 @@ const BolusFactorEditor: React.FC<BolusFactorEditorProps> = ({ apiKey, isApiKeyV
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/bolus-factors/${hour}`, {
+      // Verwende getApiUrl für den Fetch-Aufruf
+      const response = await fetch(getApiUrl(`/api/bolus-factors/${hour}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -173,3 +178,4 @@ const BolusFactorEditor: React.FC<BolusFactorEditorProps> = ({ apiKey, isApiKeyV
 };
 
 export default BolusFactorEditor;
+// END: src/BolusFactorEditor.tsx
