@@ -35,7 +35,7 @@ const BolusFactorEditor: React.FC<BolusFactorEditorProps> = ({ apiKey, isApiKeyV
     setLoading(true);
     setError(null);
     const url = getApiUrl('/api/bolus-factors');
-    console.log("Fetching from URL:", url); // Debug-Log
+ 
     try {
       const response = await fetch(url);
       if (!response.ok) {
